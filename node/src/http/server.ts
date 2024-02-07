@@ -1,7 +1,11 @@
 import { fastify } from "fastify";
 import { createPoll, getPoll, voteOnPoll } from "./routes";
+import cookie from "@fastify/cookie"
+
 
 const app = fastify();
+
+app.register(cookie, { hook: "onRequest", secret: "polls-app,nlw" });
 
 app.register(createPoll)
 app.register(getPoll)
