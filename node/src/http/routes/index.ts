@@ -1,3 +1,3 @@
 export * from "./create-poll"
-export * from "./get-post"
+export * from "./get-poll"
 export * from "./vote-on-poll"
