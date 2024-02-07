@@ -2,6 +2,8 @@ import { prisma } from "../../lib/prisma";
 import { z } from "zod"
 import { FastifyInstance } from "fastify";
 import { randomUUID } from "node:crypto";
+import { redis } from "../../lib/redis";
+import { voting } from "../../utils/voting-pub-sub";
 
 export async function voteOnPoll(app: FastifyInstance) {
   app.post("/polls/:pollId/vote", async (request, reply) => {
@@ -35,6 +37,13 @@ export async function voteOnPoll(app: FastifyInstance) {
           }
         })
 
+        // Reduz a pontuação do voto anterior 
+        await redis.zincrby(pollId, -1, userPreviousVoteOnPoll.pollOptionId)
+
+        voting.publish(pollId, {
+          pollOptionId: userPreviousVoteOnPoll.pollOptionId,
+          votes: Number(await redis.zscore(pollId, userPreviousVoteOnPoll.pollOptionId))
+        })
       } else if (userPreviousVoteOnPoll) {
         return reply.status(409).send({ message: "Already voted on this poll" })
       }
@@ -51,12 +60,20 @@ export async function voteOnPoll(app: FastifyInstance) {
       })
     }
 
-    const vote = await prisma.vote.create({
+    await prisma.vote.create({
       data: {
         sessionId,
         pollId,
         pollOptionId
       }
+    })
+
+    // Aumenta a pontuação do voto no Redis
+    const totalVotes = await redis.zincrby(pollId, 1, pollOptionId)
+
+    voting.publish(pollId, {
+      pollOptionId,
+      votes: Number(totalVotes)
     })
 
     return reply.status(201).send()
