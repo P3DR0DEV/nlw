@@ -3,12 +3,15 @@ import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { prisma } from '@/lib/prisma'
+import { BadRequestError } from './_errors/bad-request'
 
 export async function getEvent(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
     '/events/:eventId',
     {
       schema: {
+        summary: 'Returns an event',
+        tags: ['events'],
         params: z.object({ eventId: z.string().uuid() }),
         response: {
           200: z.object({
@@ -47,7 +50,7 @@ export async function getEvent(app: FastifyInstance) {
       })
 
       if (!event) {
-        return reply.status(404).send({ message: 'Event not found' })
+        throw new BadRequestError('Event not found')
       }
 
       return reply.status(200).send({

@@ -21,3 +21,13 @@ Content-Type: application/json
 
 GET http://localhost:3000/events/49281799-0e2b-416f-b261-894ecc38ef38
 Content-Type: application/json
+
+###
+
+GET http://localhost:3000/attendees/1/badge
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/attendees/1/check-in
+Content-Type: application/json

@@ -46,7 +46,7 @@ export async function getEventFromSlug(app: FastifyInstance) {
       })
 
       if (!event) {
-        return reply.status(404).send({ message: 'Event not found' })
+        throw new Error('Event not found')
       }
 
       return reply.status(200).send({

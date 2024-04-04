@@ -4,16 +4,20 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import { prisma } from '@/lib/prisma'
 import { generateSlug } from '@/utils/generate-slug'
+import { BadRequestError } from './_errors/bad-request'
 
 export async function createEvent(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
     '/events',
     {
       schema: {
+        summary: 'Create a new event',
+        tags: ['events'],
         body: z.object({
           title: z.string().min(4),
-          details: z.string().nullable(),
-          maximumAttendees: z.number().int().positive().nullable(),
+          details: z.string().nullish(),
+          maximumAttendees: z.number().int().positive().nullish(),
+          slug: z.string().nullish(),
         }),
         response: {
           201: z.object({ eventId: z.string().uuid() }),
@@ -22,18 +26,18 @@ export async function createEvent(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { title, details, maximumAttendees } = request.body
+      const { title, details, maximumAttendees, slug } = request.body
 
-      const slug = generateSlug(title)
+      const generatedSlug = generateSlug(title)
 
       const isSlugAlreadyInUse = await prisma.event.findUnique({
         where: {
-          slug,
+          slug: slug || generatedSlug,
         },
       })
 
       if (isSlugAlreadyInUse) {
-        return reply.status(409).send({ message: 'Slug already in use' })
+        throw new BadRequestError('Slug already in use')
       }
 
       const event = await prisma.event.create({
@@ -41,7 +45,7 @@ export async function createEvent(app: FastifyInstance) {
           title,
           details,
           maximumAttendees,
-          slug,
+          slug: slug || generatedSlug,
         },
       })
 

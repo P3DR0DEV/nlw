@@ -1,3 +1,7 @@
 export * from './create-event'
 export * from './get-event'
 export * from './register-for-event'
+export * from './check-in'
+export * from './get-attendee-badge'
+export * from './get-event-from-slug'
+export * from './get-event-attendees'
