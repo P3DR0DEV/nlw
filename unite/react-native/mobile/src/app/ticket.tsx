@@ -44,6 +44,7 @@ export default function Ticket() {
         <FontAwesome name="angle-double-down" size={24} color={colors.gray[300]} className="mt-6 self-center"/>
         <Text className="text-gray-100 text-2xl font-bold mt-4">Compartilhar credencial</Text>
         <Text className="text-gray-100 text-base font-regular mt-1 mb-6">Mostre ao mundo que você vai participar do Unite Summit!</Text>
+        
         <Button>
           <Button.text>Compartilhar</Button.text>
         </Button>
@@ -61,6 +62,7 @@ export default function Ticket() {
           </TouchableOpacity>
         </View>
       </Modal>
+
     </View>
   )
 }

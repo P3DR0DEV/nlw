@@ -3,20 +3,31 @@ import { View, Image, StatusBar, Alert } from 'react-native'
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
 import { colors } from '@/styles/colors'
 import { Button } from '@/components/button'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { api } from '@/lib/axios'
 
 export default function Home() {
   const [code, setCode] = useState('')
   const [isLoadind, setIsLoadind] = useState(false)
 
-  function handleAccessCredential() {
-    if(!code.trim()) {
-      return Alert.alert('Atenção', 'Por favor informe o seu ingresso')
-    }
+  async function handleAccessCredential() {
+    try  {
+      setIsLoadind(true)
+      if(!code.trim()) {
+        return Alert.alert('Atenção', 'Por favor informe o seu ingresso')
+      }
+  
+      const response = await api.get(`/attendees/${code}/badge`)
 
-    // Request to Backend
+      if(response.status === 200) {
+        Alert.alert('Atenção', 'Ingresso acessado com sucesso', [{ text: 'OK', onPress: () => router.push('/ticket') }])
+      }
+    } finally {
+      setIsLoadind(false)
+    }
   }
+  
   return(
     <View className='flex-1 bg-green-500 items-center justify-center'>
       {/* StatusBar component === native status bar where locates hours and apps */}

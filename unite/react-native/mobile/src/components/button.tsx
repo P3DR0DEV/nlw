@@ -23,6 +23,8 @@ function TextButton(props: TouchableOpacityProps) {
   )
 }
 
+
+// Composition 
 Button.text = TextButton
 
 export { Button }
