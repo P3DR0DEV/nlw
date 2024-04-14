@@ -7,6 +7,7 @@ import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import { api } from '@/lib/axios'
 import axios from 'axios'
+import { useBadgeStore } from '@/store/badge-store'
 
 const eventId = '23f44cb2-6c5a-4660-8af0-a9e41224430f'
 
@@ -14,6 +15,7 @@ export default function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [isLoadind, setIsLoadind] = useState(false)
+  const badgeStore = useBadgeStore()
 
 
   async function handleRegister() {
@@ -29,6 +31,10 @@ export default function Register() {
       })
       
       if (response.status === 201) {
+        const { data } = await api.get(`/attendees/${response.data.attendeeId}/badge`)
+
+        badgeStore.save(data.badge)
+        
         // redirect if user confirms
         Alert.alert('Atenção', 'Ingresso registrado com sucesso', [{ text: 'OK', onPress: () => router.push('/ticket') }])
       }
